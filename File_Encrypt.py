@@ -6,13 +6,24 @@ import sys
 from PIL import Image
 from Crypto.Cipher import DES
 
+def decryptPixelComponent(component, key):
+    decryptor = AES.new(key, AES.MODE_ECB)
+    component_hash = hashlib.sha256(str(component)).digest()
+    component = decryptor.decrypt(component_hash).encode('hex')
+    #print int(component, 16)
+    return int(component, 16)
+
+def decryptPixel(pixel, key):
+    (red, green, blue) = pixel
+    return (decryptPixelComponent(red, key),
+            decryptPixelComponent(green, key),
+            decryptPixelComponent(blue, key))
+
 def encryptPixelComponent(component, key):
-    #encryptor = AES.new(key, AES.MODE_ECB)
-    encryptor = DES.new("testtest", DES.MODE_ECB)
+    encryptor = AES.new(key, AES.MODE_ECB)
     component_hash = hashlib.sha256(str(component)).digest()
     component = encryptor.encrypt(component_hash).encode('hex')
-    #print int(component, 16)
-    return int(component, 16) % 256;
+    return int(component, 16) % 256
 
 def encryptPixel(pixel, key):
     (red, green, blue) = pixel
@@ -116,12 +127,11 @@ def main():
         for x in range(size[0]):
             for y in range (size[1]):
                 pixel = pix[x,y]
-                #print pixel
                 print (x,y)
                 pix[x,y] = encryptPixel(pixel, key)
         im.save(output_filename)
-        sys.exit()
-        #encrypt_file(key, input_filename, output_filename)
+        encrypt_file(key, input_filename, output_filename + "save")
+        print str(input_filename) + " was encrypted as " + str(output_filename)
 
     # Decryption
     elif (sys.argv[1] == "decrypt"):
@@ -129,10 +139,13 @@ def main():
         input_filename = raw_input()
         print "Enter output filename:"
         output_filename = raw_input()
-        print "Enter password to encrypt with:"
+        print "Enter password to decrypt with:"
         password = raw_input()
         key = generate_key(password)
         decrypt_file(key, input_filename, output_filename)
+        print str(input_filename) + " was decrypted as " + str(output_filename)
+        sys.exit()
+        
 
     else:
         print "Usage: File_encypt.py [encrypt]/[decrypt]"
@@ -141,24 +154,24 @@ def main():
 
 main()
 
-import Image
-import sys
-from Crypto.Cipher import DES
+# import Image
+# import sys
+# from Crypto.Cipher import DES
 
 
 
-def main():
-    imageName = sys.argv[1]
-    im = Image.open(imageName)
-    pix = im.load()
-    size = im.size
-    for x in range(size[0]):
-        for y in range (size[1]):
-            pixel = pix[x,y]
-            #print pixel
-            pix[x,y] = encryptPixel(pixel, key)
+# def main():
+#     imageName = sys.argv[1]
+#     im = Image.open(imageName)
+#     pix = im.load()
+#     size = im.size
+#     for x in range(size[0]):
+#         for y in range (size[1]):
+#             pixel = pix[x,y]
+#             #print pixel
+#             pix[x,y] = encryptPixel(pixel, key)
                         
-    enc = im
-    enc.save(imageName + ".enc.jpg")
+#     enc = im
+#     enc.save(imageName + ".enc.jpg")
     
-main()
+# main()
