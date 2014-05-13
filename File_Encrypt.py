@@ -3,6 +3,7 @@ import os, random, struct, sys, hashlib, click
 from Crypto.Cipher import AES
 from PIL import Image
 from Crypto.Cipher import DES
+from Crypto import Random
 
 def decryptPixelComponent(component, key):
     decryptor = AES.new(key, AES.MODE_ECB)
@@ -28,6 +29,19 @@ def encryptPixel(pixel, key):
     return (encryptPixelComponent(red, key),
             encryptPixelComponent(green, key),
             encryptPixelComponent(blue, key))
+
+def AES_CBC_Component(component, key):
+    iv = Random.new().read(AES.block_size)
+    encryptor = AES.new(key, AES.MODE_CBC, iv)
+    component_hash = hashlib.sha256(str(component)).digest()
+    component = encryptor.encrypt(component_hash).encode('hex')
+    return int(component, 16) % 256
+
+def AES_CBC_Pixel(pixel, key):
+    (red, green, blue) = pixel
+    return (AES_CBC_Component(red, key),
+            AES_CBC_Component(green, key),
+            AES_CBC_Component(blue, key))
 
 def generate_key(password):
     key = hashlib.sha256(str(password)).digest()
@@ -126,6 +140,8 @@ def encrypt(input_filename, password, o, cipher):
             #print (x,y) #DEBUG
             if cipher == ciphers[0]:
                 pix[x,y] = encryptPixel(pixel, key)
+            if cipher == ciphers[1]:
+                pix[x,y] = AES_CBC_Pixel(pixel, key)
     im.save(o)
 
 init.add_command(encrypt)
