@@ -18,10 +18,9 @@ The current method of Encryption generates numbers which must have a modulus tak
 ##Dependencies
 The program was written and tested on python 2.7.5. It makes use of the PyCrypto library and the Python Imaging Library(PIL). To install these, it should work to run
 
-<code>
-pip install pycrypto<br>
-pip install pil
-</code>
+<code>pip install pycrypto</code>
+
+<code>pip install pil</code>
 
 Bootstrap file soon&#8482;
 
