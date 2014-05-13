@@ -23,9 +23,11 @@ The program was written and tested on python 2.7.5. It uses the following librar
 + Hashlib
 + Click
 
-You should be able to install these by running
+You should be able to install most of these by running
 
 <code>pip install &lt;library name&gt;</code>
+
+The exception is PIL.
 
 Bootstrap file soon&#8482;
 
