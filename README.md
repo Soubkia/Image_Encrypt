@@ -16,11 +16,16 @@ Another issue is speed. Currently the code encrypts each pixel individually rath
 The current method of Encryption generates numbers which must have a modulus taken. This loses information and breaks the decryption of the file. While the program would serve it's purpose without decryption support, I would still like to implement it.
 
 ##Dependencies
-The program was written and tested on python 2.7.5. It makes use of the PyCrypto library and the Python Imaging Library(PIL). To install these, it should work to run
+The program was written and tested on python 2.7.5. It uses the following libraries:
 
-<code>pip install pycrypto</code>
++ PyCrypto
++ Python Imaging Library (PIL)
++ Hashlib
++ Click
 
-<code>pip install pil</code>
+You should be able to install these by running
+
+<code>pip install &lt;library name&gt;</code>
 
 Bootstrap file soon&#8482;
 
