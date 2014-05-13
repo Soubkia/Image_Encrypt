@@ -1,8 +1,6 @@
 #File_Encrypt.py
-import os, random, struct
+import os, random, struct, sys, hashlib, click
 from Crypto.Cipher import AES
-import hashlib
-import sys
 from PIL import Image
 from Crypto.Cipher import DES
 
@@ -104,74 +102,43 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
 
             outfile.truncate(origsize)
 
-def main():
-    # Input checking
-    if (len(sys.argv) != 2):
-        print "Usage: File_encypt.py [encrypt]/[decrypt]"
-        sys.exit()
+@click.group()
+def init():
+    pass
 
-    # Encryption
-    elif (sys.argv[1] == "encrypt"):
-        print "Enter input filename:"
-        input_filename = raw_input()
-        print "Enter output filename:"
-        output_filename = raw_input()
-        print "Enter password to encrypt with:"
-        password = raw_input()
-        key = generate_key(password)
-        #Loading Pixel Data
-        im = Image.open(input_filename)
-        pix = im.load()
-        size = im.size
-        print size
-        for x in range(size[0]):
-            for y in range (size[1]):
-                pixel = pix[x,y]
-                print (x,y)
+@click.command()
+@click.argument('input_filename')
+@click.argument('password')
+@click.option('-o', default="file_encrypt.out", help='Output filename')
+@click.option('--cipher', default="AES_ECB", help='The encryption to be used on the file')
+def encrypt(input_filename, password, o, cipher):
+    ciphers = ['AES_ECB', 'AES_CBC', 'DES']
+
+    key = generate_key(password)
+    #Loading Pixel Data
+    im = Image.open(input_filename)
+    pix = im.load()
+    size = im.size
+    print "Filesize: " + str(size)
+    for x in range(size[0]):
+        for y in range (size[1]):
+            pixel = pix[x,y]
+            #print (x,y) #DEBUG
+            if cipher == ciphers[0]:
                 pix[x,y] = encryptPixel(pixel, key)
-        im.save(output_filename)
-        encrypt_file(key, input_filename, output_filename + "save")
-        print str(input_filename) + " was encrypted as " + str(output_filename)
+    im.save(o)
 
-    # Decryption
-    elif (sys.argv[1] == "decrypt"):
-        print "Enter input filename:"
-        input_filename = raw_input()
-        print "Enter output filename:"
-        output_filename = raw_input()
-        print "Enter password to decrypt with:"
-        password = raw_input()
-        key = generate_key(password)
-        decrypt_file(key, input_filename, output_filename)
-        print str(input_filename) + " was decrypted as " + str(output_filename)
-        sys.exit()
-        
+init.add_command(encrypt)
 
-    else:
-        print "Usage: File_encypt.py [encrypt]/[decrypt]"
-        sys.exit()
+@click.command()
+@click.argument('input_filename')
+@click.argument('password')
+@click.option('-o', default="file_decrypt.out", help='Output filename')
+@click.option('--cipher', default="AES_ECB", help='The encryption to be used for decryption')
+def decrypt(input_filename, output_filename, password, cipher):
+    pass
 
+init.add_command(decrypt)
 
-main()
-
-# import Image
-# import sys
-# from Crypto.Cipher import DES
-
-
-
-# def main():
-#     imageName = sys.argv[1]
-#     im = Image.open(imageName)
-#     pix = im.load()
-#     size = im.size
-#     for x in range(size[0]):
-#         for y in range (size[1]):
-#             pixel = pix[x,y]
-#             #print pixel
-#             pix[x,y] = encryptPixel(pixel, key)
-                        
-#     enc = im
-#     enc.save(imageName + ".enc.jpg")
-    
-# main()
+if __name__ == '__main__':
+    init()
